@@ -1,6 +1,7 @@
 import bcrypt from 'bcrypt';
 import User from '../models/user.model.js';
 import { generateToken } from '../config/jwt.config.js';
+import ServerResponse from '../response/pattern.js';
 
 export async function loginUser(req, res) {
     try {
@@ -15,18 +16,12 @@ export async function loginUser(req, res) {
         });
 
         if (!user) {
-            return res.status(404).json({
-                success: false,
-                message: "User not found"
-            });
+            return res.status(404).json(new ServerResponse(false, null, "User not found", null));
         }
         const isPasswordValid = await bcrypt.compare(password, user.password);
 
         if (!isPasswordValid) {
-            return res.status(401).json({
-                success: false,
-                message: "Invalid password"
-            });
+            return res.status(401).json(new ServerResponse(false, null, "password Invalid", null));
         }
 
         let userData = user.toObject();
@@ -44,16 +39,9 @@ export async function loginUser(req, res) {
             maxAge: 24 * 60 * 60 * 1000 * 24 * 30 // 30 days
         });
 
-        return res.status(200).json({
-            success: true,
-            message: "User login successfully",
-            user
-        });
+        return res.status(200).json(new ServerResponse(true, user, "User login successfully", null));
     } catch (error) {
-        return res.status(500).json({
-            success: false,
-            message: error.message
-        });
+        return res.status(500).json(new ServerResponse(false, null, error.message, error));
     }
 }
 
@@ -61,21 +49,11 @@ export async function getUser(req, res) {
     try {
         let users = await User.findById(req.user.id).select("-password -__v");
         if (!users) {
-            return res.status(404).json({
-                success: false,
-                message: "No users found"
-            });
+            return res.status(404).json(new ServerResponse(false, null, "User not found", null));
         }
-        return res.status(200).json({
-            success: true,
-            message: "Successfully fetched users",
-            data: users
-        });
+        return res.status(200).json(new ServerResponse(true, users, "Successfully fetched users", null));
     } catch (error) {
-        return res.status(500).json({
-            success: false,
-            message: error.message
-        });
+        return res.status(500).json(new ServerResponse(false, null, error.message, error));
     }
 }
 
@@ -92,16 +70,9 @@ export async function addUser(req, res) {
             password: hashedPassword,
         });
 
-        return res.status(201).json({
-            success: true,
-            message: "User registered successfully",
-            user
-        });
+        return res.status(201).json(new ServerResponse(true, user, "User registered successfully", null));
     } catch (error) {
-        return res.status(500).json({
-            success: false,
-            message: error.message
-        });
+        return res.status(500).json(new ServerResponse(false, null, error.message, error));
     }
 }
 
