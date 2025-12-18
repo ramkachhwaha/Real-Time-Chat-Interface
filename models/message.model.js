@@ -16,7 +16,7 @@ const attechmentSchema = new Schema({
         type: String,
         trim: true
     }
-})
+});
 
 const messageSchema = new Schema({
     sender: {
@@ -24,10 +24,10 @@ const messageSchema = new Schema({
         required: [true, "sender id is Required"],
         ref: "users"
     },
-    receiver: {
+    chatId: {
         type: Schema.Types.ObjectId,
-        required: [true, "receiver id is Required"],
-        ref: "users"
+        ref: "chats",
+        required: true,
     },
     message: {
         type: String,
@@ -35,10 +35,12 @@ const messageSchema = new Schema({
         minLength: [1, "Blank message"],
     },
     attechment: [attechmentSchema],
-    seen: {
-        type: Boolean,
-        default: false
-    },
+    seen: [
+        {
+            type: Schema.Types.ObjectId,
+            ref: "users",
+        },
+    ],
     delivered: {
         type: Boolean,
         default: false
