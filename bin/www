@@ -9,6 +9,7 @@ import debug from "debug";
 import http from 'http';
 import dotenv from "dotenv";
 import dbConnect from '../config/db.config.js';
+import InitSocket from '../websocketServer/socket.js';
 dotenv.config()
 /**
  * Get port from environment and store in Express.
@@ -22,6 +23,7 @@ app.set('port', port);
  */
 
 const server = http.createServer(app);
+InitSocket(server);
 
 /**
  * Listen on provided port, on all network interfaces.
