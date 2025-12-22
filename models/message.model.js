@@ -52,6 +52,6 @@ const messageSchema = new Schema({
 }, { timestamps: true });
 
 
-const userModel = model("messages", messageSchema);
+const messageModel = model("messages", messageSchema);
 
-export default userModel;
+export default messageModel;

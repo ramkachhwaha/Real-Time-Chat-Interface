@@ -1,6 +1,7 @@
 import MessageModel from "../models/message.model.js"
 import chatModel from "../models/chat.model.js";
 import ServerResponse from "../response/pattern.js";
+import { getIo } from "../websocketServer/socket.js";
 
 // one and one chat option created-
 export const accessChat = async (req, res) => {
@@ -91,6 +92,10 @@ export const sendMessage = async (req, res) => {
         await chatModel.findByIdAndUpdate(chatId, {
             lastMessage: getMessage._id,
         });
+
+        let io = getIo();
+
+        io.to(chatId).emit("newMessage", getMessage);
 
         res.status(201).json(new ServerResponse(true, message, "message Sent", null));
 
