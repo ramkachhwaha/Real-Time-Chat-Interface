@@ -14,7 +14,8 @@ const attechmentSchema = new Schema({
     },
     message: {
         type: String,
-        trim: true
+        trim: true,
+        maxLength: [255, "large message"]
     }
 });
 

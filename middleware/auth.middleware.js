@@ -12,12 +12,12 @@ export async function authMiddlewareOnlyForUser(req, res, next) {
 
         let verify = verifyToken(token);
 
-        if (!verify) return res.status(401).json({ message: 'Unauthrized user rt' });
+        if (!verify) return res.status(401).json({ message: 'Unauthrized user' });
 
         let user = await userModel.findOne({ _id: verify.id, role: verify.role, isActive: true, isDeleted: false })
   
         if (!user) {
-            return res.status(401).json({ message: 'Unauthrized user' });
+            return res.status(401).json({ message: 'Unauthrize or Deteted Account Please Contact Admin person' });
         }
 
         req.user = verify

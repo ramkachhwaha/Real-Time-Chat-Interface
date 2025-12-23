@@ -34,3 +34,30 @@ export const registerUserValidator = [
         .trim()
         .isLength({ max: 32 }).withMessage("Bio can't exceed 32 characters")
 ];
+
+
+export const updateUserValidator = [
+    body("user_name")
+        .trim()
+        .notEmpty().withMessage("User Name is required")
+        .isLength({ min: 2, max: 32 }).withMessage("User Name must be 2-32 characters"),
+
+    body("email")
+        .trim()
+        .notEmpty().withMessage("Email is required")
+        .isEmail().withMessage("Invalid email format"),
+
+    body("address")
+        .optional()
+        .trim()
+        .isLength({ min: 3, max: 32 }).withMessage("Address must be 3-32 characters"),
+
+    body("gender")
+        .optional()
+        .isIn(["male", "female", "other"]).withMessage("Invalid gender"),
+
+    body("bio")
+        .optional()
+        .trim()
+        .isLength({ max: 255 }).withMessage("Bio can't exceed 32 characters")
+];

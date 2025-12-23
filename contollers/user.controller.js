@@ -18,6 +18,10 @@ export async function loginUser(req, res) {
         if (!user) {
             return res.status(404).json(new ServerResponse(false, null, "User not found", null));
         }
+
+        if(!user.isActive && user.isDeleted){
+            return res.status(401).json({ message: 'Unauthrize or Deteted Account Please Contact Admin person' });
+        }
         const isPasswordValid = await bcrypt.compare(password, user.password);
 
         if (!isPasswordValid) {
@@ -76,36 +80,32 @@ export async function addUser(req, res) {
     }
 }
 
-export async function updateUser(req, res, next) {
-    const { userId } = req.params;
-
+export async function updateUser(req, res) {
+    const {user_name, email,gender,bio,address} = req.body;
     try {
-        let connect = await dbConnect();
-        let db = connect.db("demo")
+        const user = await User.findByIdAndUpdate(req.user.id, { user_name, email, gender , bio , address },{new : true});
+        
+        if (!user) {
+            return res.status(404).json(new ServerResponse(false, null, "user Not Found"))
+        }
 
-        let collection = db.collection("user");
-        let data = await collection.updateOne({ _id: new ObjectId(userId) }, { $set: req.body });
-
-        data = { ...req.body, ...data }
-        res.json(data)
+        return res.status(201).json(new ServerResponse(true, user, "Your Details Is Upadated", null))
     } catch (error) {
-        res.json(error)
+        return res.status(500).json(new ServerResponse(false, null, error.message, error));
     }
 }
 
-export async function deleteUser(req, res, next) {
-    const { userId } = req.params;
+export async function deleteUser(req, res) {
 
     try {
-        let connect = await dbConnect();
-        let db = connect.db("demo")
+        const user = await User.findOneAndUpdate({ _id: req.user.id, isDeleted: false, isActive: true }, { isDeleted: true, isActive: false });
+        if (!user) {
+            return res.status(404).json(new ServerResponse(false, null, "Your account Not Found"))
+        }
 
-        let collection = db.collection("user");
-        let data = await collection.deleteOne({ _id: new ObjectId(userId) });
-
-        res.json(data)
+        return res.status(200).json(new ServerResponse(true, user, "Your account is Deleted", null))
     } catch (error) {
-        res.json(error)
+        return res.status(500).json(new ServerResponse(false, null, error.message, error));
     }
 }
 

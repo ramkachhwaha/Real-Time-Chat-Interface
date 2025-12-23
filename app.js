@@ -3,6 +3,7 @@ import express from 'express';
 import cookieParser from 'cookie-parser';
 import logger from 'morgan';
 import dotenv from 'dotenv';
+import cors from "cors"
 dotenv.config();
 
 import indexRouter from './routes/index.js';
@@ -14,7 +15,7 @@ const app = express();
 
 // view engine setup
 app.set('view engine', 'ejs');
-
+app.use(cors())
 app.use(logger('combined'));
 app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
