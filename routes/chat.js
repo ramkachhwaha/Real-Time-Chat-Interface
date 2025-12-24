@@ -10,10 +10,12 @@ import {
 
 const router = express.Router();
 
-router.post("/access", authMiddlewareOnlyForUser, accessChat);
-router.post("/group", authMiddlewareOnlyForUser, createGroupChat);
-router.get("/", authMiddlewareOnlyForUser, getMyChats);
-router.post("/message", authMiddlewareOnlyForUser, sendMessage);
-router.get("/:chatId/messages", authMiddlewareOnlyForUser, getMessages);
+router.use("/", authMiddlewareOnlyForUser)
+
+router.post("/access", accessChat);
+router.post("/group", createGroupChat);
+router.get("/", getMyChats);
+router.post("/message", sendMessage);
+router.get("/:chatId/messages", getMessages);
 
 export default router;
