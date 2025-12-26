@@ -18,6 +18,7 @@ const userSchema = new Schema({
             },
             message: props => `${props.value} is not a valid Email Id!`
         },
+        lowercase: true,
         unique: true
     },
     phone: {
