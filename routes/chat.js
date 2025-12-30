@@ -16,6 +16,6 @@ router.post("/access", accessChat);
 router.post("/group", createGroupChat);
 router.get("/", getMyChats);
 router.post("/message", sendMessage);
-router.get("/:chatId/messages", getMessages);
+router.get("/m/:chatId/", getMessages);
 
 export default router;

@@ -23,6 +23,12 @@ const chatSchema = new Schema(
             trim: true,
         },
 
+        // group chat name
+        groupIcon: {
+            type: String,
+            trim: true,
+        },
+
         // group admin (only for group)
         groupAdmin: {
             type: Schema.Types.ObjectId,

@@ -62,7 +62,7 @@ export const createGroupChat = async (req, res) => {
  */
 export const getMyChats = async (req, res) => {
     try {
-        const chats = await chatModel.find({
+        let chats = await chatModel.find({
             members: req.user.id,
         })
             .populate("members lastMessage")
@@ -112,6 +112,7 @@ export const getMessages = async (req, res) => {
     try {
         const messages = await MessageModel.find({ chatId })
             .populate("sender", "user_name email")
+            .populate("chatId")
             .sort({ createdAt: 1 });
 
         res.json(new ServerResponse(true, messages, "success", null));
