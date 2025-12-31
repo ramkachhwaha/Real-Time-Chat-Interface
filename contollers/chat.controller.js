@@ -1,5 +1,6 @@
-import MessageModel from "../models/message.model.js"
+import MessageModel from "../models/message.model.js";
 import chatModel from "../models/chat.model.js";
+import userModel from "../models/user.model.js"
 import ServerResponse from "../response/pattern.js";
 import { getIo } from "../websocketServer/socket.js";
 
@@ -13,17 +14,26 @@ export const accessChat = async (req, res) => {
             return res.status(400).json(new ServerResponse(false, null, "receiverId required", null));
         }
 
+        let reciver = await userModel.findById(receiverId).select("user_name _id phone email avatar");
+        reciver = reciver.toObject()
+
         let chat = await chatModel.findOne({
             isGroupChat: false,
             members: { $all: [myId, receiverId], $size: 2 },
         }).populate("members lastMessage");
 
-        if (chat) return res.status(200).json(new ServerResponse(true, chat, "success", null));
+
+        if (chat) {
+            chat = chat.toObject();
+            chat.reciver = reciver;
+            return res.status(200).json(new ServerResponse(true, chat, "success", null));
+        }
 
         const newChat = await chatModel.create({
             members: [myId, receiverId],
         });
 
+        newChat.reciver = reciver;
         res.status(201).json(new ServerResponse(true, newChat, "chat created", null));
 
     } catch (error) {
