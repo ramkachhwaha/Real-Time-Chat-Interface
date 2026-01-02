@@ -93,7 +93,7 @@ export const sendMessage = async (req, res) => {
 
     try {
 
-        const getMessage = await MessageModel.create({
+        let getMessage = await MessageModel.create({
             chatId,
             sender: req.user.id,
             message,
@@ -103,11 +103,16 @@ export const sendMessage = async (req, res) => {
             lastMessage: getMessage._id,
         });
 
+        getMessage = getMessage.toObject();
+
+        getMessage.sender = req.userData
+
         let io = getIo();
 
         io.to(chatId).emit("newMessage", getMessage);
 
-        res.status(201).json(new ServerResponse(true, message, "message Sent", null));
+
+        res.status(201).json(new ServerResponse(true, getMessage, "message Sent", null));
 
     } catch (error) {
         res.status(500).json(new ServerResponse(false, null, error.message, error));
