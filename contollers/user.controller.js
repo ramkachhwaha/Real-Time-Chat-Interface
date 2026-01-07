@@ -2,6 +2,7 @@ import bcrypt from 'bcrypt';
 import User from '../models/user.model.js';
 import { generateToken } from '../config/jwt.config.js';
 import ServerResponse from '../response/pattern.js';
+import fs from "fs";
 
 export async function loginUser(req, res) {
     try {
@@ -104,6 +105,29 @@ export async function deleteUser(req, res) {
         }
 
         return res.status(200).json(new ServerResponse(true, user, "Your account is Deleted", null))
+    } catch (error) {
+        return res.status(500).json(new ServerResponse(false, null, error.message, error));
+    }
+}
+
+export async function uploadDp(req, res) {
+
+    try {
+
+        let imageUrl = `${req.protocol}://${req.host}/${req.file.destination}/${req.file.filename}`
+
+        const user = await User.findByIdAndUpdate(req.user.id, { avatar: imageUrl }, { new: true });
+
+        if (!user) {
+            return res.status(404).json(new ServerResponse(false, null, "user Not Found"))
+        }
+        
+        if (req.userData.avatar) {
+            let fileIndex = req.userData.avatar.indexOf("uploads");
+            fs.rmSync(req.userData.avatar.slice(fileIndex),{recursive : true});
+        }
+
+        return res.status(201).json(new ServerResponse(true, user, "Your Details Is Upadated", null))
     } catch (error) {
         return res.status(500).json(new ServerResponse(false, null, error.message, error));
     }
