@@ -10,6 +10,7 @@ import http from 'http';
 import dotenv from "dotenv";
 import dbConnect from '../config/db.config.js';
 import InitSocket from '../websocketServer/socket.js';
+import transpoter from '../config/mail.config.js';
 dotenv.config()
 /**
  * Get port from environment and store in Express.
@@ -92,5 +93,13 @@ async function onListening() {
     : 'port ' + addr.port;
   debug('express-generator:server').call('Listening on ' + bind);
   console.log("server is running " + "http://localhost:" + addr.port);
-  await dbConnect()
+
+  dbConnect().catch((err) => {
+    console.log("DB Error :", err);
+  });
+
+  transpoter.verify().catch((err) => {
+    console.log("Mail Error : ", err);
+  });
+  
 }

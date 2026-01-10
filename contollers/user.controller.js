@@ -3,24 +3,25 @@ import User from '../models/user.model.js';
 import { generateToken } from '../config/jwt.config.js';
 import ServerResponse from '../response/pattern.js';
 import fs from "fs";
+import transpoter from '../config/mail.config.js';
+import { config } from 'dotenv';
+config();
 
 export async function loginUser(req, res) {
     try {
         const { login_user, password } = req.body;
 
+        const query = isNaN(login_user)
+            ? { email: login_user }
+            : { phone: login_user };
 
-        let user = await User.findOne({
-            $or: [
-                { email: login_user },
-                { phone: Number(login_user) }
-            ]
-        });
+        let user = await User.findOne(query);
 
         if (!user) {
             return res.status(404).json(new ServerResponse(false, null, "User not found", null));
         }
 
-        if (!user.isActive && user.isDeleted) {
+        if (!user.isActive || user.isDeleted) {
             return res.status(401).json({ message: 'Unauthrize or Deteted Account Please Contact Admin person' });
         }
         const isPasswordValid = await bcrypt.compare(password, user.password);
@@ -75,6 +76,15 @@ export async function addUser(req, res) {
             password: hashedPassword,
         });
 
+        transpoter.sendMail({
+            from: process.env.GMAIL_ID,
+            to: email,
+            subject: "Wellcome To Chat App",
+            html: `<h1>Hello! ${user_name}</h1>\n<p>This is an <strong>HTML</strong> message with an embedded image:</p>\n\n<p>Edit the JSON on the left to see the preview update in real-time.</p>`
+        }).catch((err) => {
+            console.log("Mail-Error : ", err);
+        });
+
         return res.status(201).json(new ServerResponse(true, user, "User registered successfully", null));
     } catch (error) {
         return res.status(500).json(new ServerResponse(false, null, error.message, error));
@@ -121,10 +131,10 @@ export async function uploadDp(req, res) {
         if (!user) {
             return res.status(404).json(new ServerResponse(false, null, "user Not Found"))
         }
-        
+
         if (req.userData.avatar) {
             let fileIndex = req.userData.avatar.indexOf("uploads");
-            fs.rmSync(req.userData.avatar.slice(fileIndex),{recursive : true});
+            fs.rmSync(req.userData.avatar.slice(fileIndex), { recursive: true });
         }
 
         return res.status(201).json(new ServerResponse(true, user, "Your Details Is Upadated", null))
